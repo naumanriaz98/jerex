@@ -212,11 +212,12 @@ class RelClassificationMultiInstanceModel(BertPreTrainedModel):
                                                max_pairs=max_rel_pairs)
 
         if inference:
-            rel_clf = torch.sigmoid(rel_clf)
-            rel_clf[rel_clf < self._rel_threshold] = 0
-            rel_clf *= rel_sample_masks.unsqueeze(-1)
+            pass
+            # rel_clf = torch.sigmoid(rel_clf)
+            # rel_clf[rel_clf < self._rel_threshold] = 0
+            # rel_clf *= rel_sample_masks.unsqueeze(-1)
 
-        return dict(rel_clf=rel_clf)
+        return dict(rel_clf=rel_clf, rel_threshold = self._rel_threshold)
 
 
 class RelClassificationGlobal(BertPreTrainedModel):

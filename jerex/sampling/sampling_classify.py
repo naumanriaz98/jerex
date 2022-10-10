@@ -70,6 +70,16 @@ def create_rel_classify_train_sample(doc, neg_rel_count: int, rel_type_count: in
     assert (len(rel_mention_pairs) == len(rel_ctx_masks) ==
             len(rel_token_distances) == len(rel_sentence_distances))
 
+    # print(mention_masks.shape, 'Mention Mask')
+    # print(mention_types.shape, 'Mention Types')
+    # print(entities.shape, 'Entities')
+    # print(entity_types.shape, 'Entity types')
+    # print(rel_entity_pair_mp.shape, "rel_mp")
+    # print(rel_mention_pair_ep.shape, "rel_ep")
+    # print(rel_mention_pairs.shape, "rel")
+    # input("halt")
+
+
     return dict(encodings=encodings, context_masks=context_masks, mention_masks=mention_masks,
                 mention_sizes=mention_sizes, mention_types=mention_types, mention_sample_masks=mention_sample_masks,
                 entities=entities, entity_masks=entity_masks, entity_types=entity_types,

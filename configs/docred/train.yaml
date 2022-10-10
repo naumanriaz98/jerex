@@ -1,7 +1,7 @@
 # to run this configuration, download original DocRED dataset (see https://github.com/thunlp/DocRED) into
 # ./data/datasets/docred/
 datasets:
-  train_path: ./data/datasets/docred/train_annotated.json
+  train_path: ./data/datasets/docred_change/train_removed.json
   valid_path: ./data/datasets/docred/dev.json
   types_path: ./data/datasets/docred/types.json
 
@@ -18,7 +18,7 @@ sampling:
   sampling_processes: 8
 
 training:
-  batch_size: 1
+  batch_size: 2
   min_epochs: 20
   max_epochs: 20
   lr: 5e-5

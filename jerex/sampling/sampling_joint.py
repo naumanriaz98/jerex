@@ -90,6 +90,14 @@ def create_joint_train_sample(doc: Document, neg_mention_count: int, neg_rel_cou
     assert len(entities) == len(entity_types)
     assert len(rel_entity_pairs) == len(rel_types)
 
+    print(mention_masks.shape, 'Mention Mask')
+    print(mention_types.shape, 'Mention Types')
+    print(rel_entity_pair_mp.shape, "rel_mp")
+    input("halt")
+
+
+
+
     return dict(encodings=encodings, context_masks=context_masks, mention_masks=mention_masks,
                 mention_sizes=mention_sizes, mention_types=mention_types, mention_sample_masks=mention_sample_masks,
                 entities=entities, entity_masks=entity_masks, entity_types=entity_types,

@@ -153,18 +153,29 @@ class RelationClassificationLoss(Loss):
 
     def compute(self, rel_clf, rel_types, rel_sample_masks, **kwargs):
         loss_dict = dict()
-
+        # print('INSIDE LOSS')
         # relation loss
+        # torch.set_printoptions(profile="full")
         rel_sample_masks = rel_sample_masks.view(-1).float()
+        # print(rel_sample_masks.shape, 'rel_sample_masks')
+        # print(rel_sample_masks, "rel_sample_mask tensor")
         rel_count = rel_sample_masks.sum()
 
         rel_clf = rel_clf.view(-1, rel_clf.shape[-1])
         rel_types = rel_types.view(-1, rel_types.shape[-1])
-
+        
+        # print(rel_clf.shape, 'rel_clf')
+        # print(rel_clf, 'rel_clf tensor')
+        # print(rel_types.shape, 'rel_types')
+        # print(rel_types, 'rel_types tensor')
         train_loss = self._rel_criterion(rel_clf, rel_types.float())
-        train_loss = train_loss.sum(-1)
-        train_loss = (train_loss * rel_sample_masks).sum() / rel_count
-
-        loss_dict['loss'] = train_loss
-
+        # print(train_loss.shape, 'train_loss before summing')
+        train_loss_sum = train_loss.sum(-1)
+        # print(train_loss.shape, "Train loss")
+        # print(train_loss, "train_loss tensor")
+        train_loss_avg = (train_loss_sum * rel_sample_masks).sum() / rel_count
+        
+        loss_dict['loss'] = train_loss_avg
+        # loss_dict['loss_all'] = train_loss
+        # input("HALT")
         return loss_dict

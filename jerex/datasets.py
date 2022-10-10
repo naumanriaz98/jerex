@@ -229,7 +229,9 @@ class DocREDDataset(TorchDataset):
             elif self._task == TaskType.ENTITY_CLASSIFICATION:
                 samples = sampling_classify.create_entity_classify_sample(doc)
             elif self._task == TaskType.RELATION_CLASSIFICATION:
-                samples = sampling_classify.create_rel_classify_inference_sample(doc)
+                # samples = sampling_classify.create_rel_classify_inference_sample(doc)
+                samples = sampling_classify.create_rel_classify_train_sample(doc, self._neg_rel_count,
+                                                                          len(self._relation_types))
             else:
                 raise Exception('Invalid task')
 

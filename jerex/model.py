@@ -13,6 +13,8 @@ from transformers import AdamW, BertConfig, BertTokenizer
 from configs import TrainConfig, TestConfig
 from jerex import models, util
 from jerex.data_module import DocREDDataModule
+import numpy as np
+import json
 
 _predictions_write_lock = Lock()
 
@@ -89,6 +91,8 @@ class JEREXModel(pl.LightningModule):
         self._predictions_filename = predictions_filename
         self._tmp_predictions_filename = tmp_predictions_filename
 
+        self.loss_list = []
+
     def setup(self, stage):
         """ Setup is run once before training/testing starts """
         # depending on stage (training=fit or testing), convert ground truth for later evaluation
@@ -148,6 +152,13 @@ class JEREXModel(pl.LightningModule):
 
     def test_epoch_end(self, outputs):
         """ Loads current epoch's test set predictions from disk and computes test metrics """
+
+
+        print(len(self.loss_list), 'loss_list')
+
+        with open('/data/stud/2022-riaz-influence-analysis/jerex_rel_clf/jerex/loss_files/loss_list.json', 'w') as f:
+            json.dump(self.loss_list, f)
+
         if self._do_eval():
             predictions = self._load_predictions()
 
@@ -174,6 +185,53 @@ class JEREXModel(pl.LightningModule):
     def _inference(self, batch, batch_index):
         """ Converts prediction results of an epoch and stores the predictions on disk for later evaluation"""
         output = self(**batch, inference=True)
+
+        torch.set_printoptions(profile="full")
+        # print(batch['mention_masks'].shape, 'Mention Mask')
+        # print(batch['mention_types'].shape, 'Mention Types')
+        # print(batch['entities'].shape, 'Entities')
+        # # print(batch['entities'], "ENTITIES TENSOR")
+        # print(batch['entity_types'].shape, 'Entity types')
+        # print(batch['rel_entity_pair_mp'].shape, "rel_entity_pair_mp")
+        # # print(batch['rel_entity_pair_mp'], "rel_entity_pair_mp tensor")
+        # print(batch['rel_entity_pairs'].shape, "rel_entity_pair")
+        # # print(batch['rel_entity_pairs'], 'rel_entity_pair_tensor')
+        # print(batch['rel_mention_pair_ep'].shape, "rel_mention_pair_ep")
+        # print(batch['rel_mention_pairs'].shape, "rel_mention_pairs")
+
+        # input("HALT")
+
+        losses = self._compute_loss.compute(**output, **batch)
+        loss = losses['loss']
+
+
+        rel_clf = output['rel_clf']
+        rel_sample_masks = batch['rel_sample_masks']
+        rel_threshold = output['rel_threshold']
+        rel_clf = torch.sigmoid(rel_clf)
+        rel_clf[rel_clf < rel_threshold] = 0
+        rel_clf *= rel_sample_masks.unsqueeze(-1)
+
+        output = dict(rel_clf=rel_clf)
+
+
+        # temp = rel_clf.clone()
+        # # print(temp.shape)
+        # temp = temp.view(temp.shape[-2], temp.shape[-1])
+
+        # temp[temp > 0] = 1
+
+
+        # final_loss = temp * losses['loss_all']
+
+        # for x in final_loss:
+        #     for y in x:
+        #         if y != 0:
+        #             with _predictions_write_lock:
+        #                 self.loss_list.append(y.item())
+        #     else:
+        #         pass
+        
 
         # evaluate batch
         predictions = self._evaluator.convert_batch(**output, batch=batch)
